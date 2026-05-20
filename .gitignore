@@ -1,0 +1,35 @@
+# Ambientes virtuais
+venv/
+env/
+.venv/
+ 
+# Variáveis de ambiente (NUNCA commitar)
+.env
+ 
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+ 
+# Dados (são grandes e podem ter direitos de autor)
+data/audio/
+data/transcripts/
+*.mp3
+*.wav
+*.m4a
+ 
+# ChromaDB (base vetorial local)
+chroma_db/
+ 
+# VS Code
+.vscode/
+ 
+# Sistema
+.DS_Store
+Thumbs.db
+ 
+# Logs
+*.log
+ 

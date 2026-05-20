@@ -1,0 +1,27 @@
+# --- Core ---
+python-dotenv==1.0.1
+
+# --- Transcription ---
+yt-dlp
+faster-whisper==1.0.2
+youtube-transcript-api==0.6.2
+
+# --- LLM & RAG (vamos usar a partir do Dia 3) ---
+openai==1.30.5
+langchain==0.2.5
+langchain-openai==0.1.8
+langchain-community==0.2.5
+langgraph==0.0.69
+chromadb==0.5.0
+tiktoken==0.7.0
+
+# --- LangSmith (avaliação) ---
+langsmith==0.1.77
+
+# --- Interface (Dia 5) ---
+streamlit==1.35.0
+streamlit-mic-recorder==0.0.8
+
+# --- Utilidades ---
+pydantic==2.7.4
+tqdm==4.66.4
