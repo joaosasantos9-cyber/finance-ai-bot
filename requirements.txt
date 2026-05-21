@@ -8,6 +8,7 @@ youtube-transcript-api==0.6.2
 
 # --- LLM & RAG (vamos usar a partir do Dia 3) ---
 openai==1.30.5
+httpx<0.28  # a 0.28 removeu 'proxies', que o openai 1.30.5 ainda usa
 langchain==0.2.5
 langchain-openai==0.1.8
 langchain-community==0.2.5
