@@ -7,6 +7,15 @@ Fase 2 (consulta):   pergunta -> embedding -> procurar chunks parecidos
 Usamos LangChain (requisito do projeto) para orquestrar tudo.
 """
  
+import os
+import logging
+ 
+# Desliga a telemetria anónima do ChromaDB (evita mensagens de erro no output).
+# Usamos dois métodos para garantir: variável de ambiente + silenciar o logger.
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+logging.getLogger("chromadb.telemetry").setLevel(logging.CRITICAL)
+logging.getLogger("chromadb.telemetry.product.posthog").setLevel(logging.CRITICAL)
+ 
 import json
 from pathlib import Path
  
