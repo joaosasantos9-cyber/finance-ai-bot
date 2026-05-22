@@ -11,7 +11,9 @@ Cada transcrição é guardada em JSON (texto + metadados) para usarmos no RAG.
 """
  
 import json
+import os
 import re
+import tempfile
 from dataclasses import dataclass, asdict
 from pathlib import Path
  
@@ -116,6 +118,26 @@ def get_whisper_model(model_size: str = DEFAULT_MODEL) -> WhisperModel:
         print(f"      A carregar modelo Whisper '{model_size}'...")
         _whisper_model = WhisperModel(model_size, device="cpu", compute_type="int8")
     return _whisper_model
+ 
+ 
+def transcribe_audio_bytes(audio_bytes: bytes, model_size: str = DEFAULT_MODEL) -> str:
+    """
+    Transcreve áudio gravado pelo utilizador (ex: do microfone na app).
+    Recebe os bytes do áudio (WAV), guarda num ficheiro temporário e usa o Whisper.
+    Reutiliza o mesmo modelo já em cache (eficiente).
+    """
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        tmp.write(audio_bytes)
+        tmp_path = tmp.name
+ 
+    try:
+        model = get_whisper_model(model_size)
+        segments, _ = model.transcribe(tmp_path, beam_size=5)
+        text = " ".join(segment.text for segment in segments).strip()
+    finally:
+        os.remove(tmp_path)  # limpar o ficheiro temporário
+ 
+    return text
  
  
 def transcribe_with_whisper(url: str, video_id: str, model_size: str = DEFAULT_MODEL):

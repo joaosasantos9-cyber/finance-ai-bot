@@ -1,0 +1,13 @@
+# Configuração do Streamlit
+# Colocar em: .streamlit/config.toml (na raiz do projeto)
+ 
+[server]
+# Desliga o "file watcher" que inspeciona todos os módulos importados.
+# Isto elimina o spam de mensagens do transformers/torchvision no terminal.
+# Custo: a app deixa de recarregar automaticamente ao guardares ficheiros —
+# basta carregar 'R' no browser (ou clicar "Rerun") para recarregar.
+fileWatcherType = "none"
+ 
+[theme]
+# Tema visual (opcional, deixa a app mais bonita para a apresentação)
+primaryColor = "#2E8B57"

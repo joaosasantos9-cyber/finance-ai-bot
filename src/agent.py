@@ -75,7 +75,8 @@ relevant information before answering.
 - Answer based ONLY on what the tools return. If the information is not there, say you \
 don't have it in the videos. Never invent information.
 - Use the conversation history to understand follow-up questions.
-- Be clear and concise.
+- Keep answers concise: 2 to 4 short sentences, or up to 4 brief bullet points. \
+Get straight to the point and avoid long preambles.
 - End any finance answer with: "This is educational content, not financial advice."
 """
  
@@ -91,7 +92,13 @@ def build_agent() -> AgentExecutor:
     """Constrói o agente com as tools e o prompt."""
     llm = ChatOpenAI(model=LLM_MODEL, temperature=0)
     agent = create_tool_calling_agent(llm, TOOLS, prompt)
-    return AgentExecutor(agent=agent, tools=TOOLS, verbose=True)
+    # return_intermediate_steps=True -> o resultado inclui que tools foram usadas
+    return AgentExecutor(
+        agent=agent,
+        tools=TOOLS,
+        verbose=True,
+        return_intermediate_steps=True,
+    )
  
  
 # --- Memória (uma história de conversa por sessão) ---
@@ -111,6 +118,7 @@ def build_agent_with_memory() -> RunnableWithMessageHistory:
         get_session_history,
         input_messages_key="input",
         history_messages_key="chat_history",
+        output_messages_key="output",  # qual a chave da resposta a guardar na memória
     )
  
  
