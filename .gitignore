@@ -13,15 +13,14 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
  
-# Dados (são grandes e podem ter direitos de autor)
+# Áudios baixados — grandes e desnecessários para a app (ficam ignorados)
 data/audio/
-data/transcripts/
 *.mp3
 *.wav
 *.m4a
  
-# ChromaDB (base vetorial local)
-chroma_db/
+# NOTA: data/transcripts/ e chroma_db/ SÃO versionados de propósito,
+# para a app deployed (Streamlit Cloud) ter acesso à base de conhecimento.
  
 # VS Code
 .vscode/

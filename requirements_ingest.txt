@@ -1,0 +1,10 @@
+# Dependências EXTRA, só necessárias localmente para transcrever vídeos
+# (ingest.py, build_index.py). A app deployed NÃO precisa destas.
+#
+# Instalar localmente com:
+#   pip install -r requirements.txt -r requirements-ingest.txt
+ 
+yt-dlp                          # download de áudio do YouTube (sem versão fixa)
+faster-whisper==1.0.2           # transcrição local (STT)
+youtube-transcript-api==0.6.2   # fallback de legendas
+tqdm==4.66.4

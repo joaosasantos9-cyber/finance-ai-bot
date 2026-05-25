@@ -10,6 +10,7 @@ Funcionalidades:
 Correr com:  streamlit run app.py
 """
  
+import io
 import uuid
  
 import streamlit as st
@@ -19,7 +20,6 @@ from streamlit_mic_recorder import mic_recorder
  
 from src.agent import build_agent_with_memory
 from src.rag import get_vectorstore, load_documents
-from src.transcription import transcribe_audio_bytes
  
 load_dotenv()
  
@@ -36,6 +36,18 @@ def get_agent():
 def get_video_list():
     docs = load_documents()
     return [(d.metadata["title"], d.metadata["channel"], d.metadata["url"]) for d in docs]
+ 
+ 
+def transcribe_audio_openai(audio_bytes: bytes) -> str:
+    """
+    Transcreve o áudio gravado pelo utilizador usando a API Whisper da OpenAI.
+    (Leve para a cloud — não precisa de modelos locais.)
+    """
+    client = OpenAI()
+    buffer = io.BytesIO(audio_bytes)
+    buffer.name = "audio.wav"  # a API precisa de um nome para inferir o formato
+    transcript = client.audio.transcriptions.create(model="whisper-1", file=buffer)
+    return transcript.text
  
  
 def text_to_speech(text: str) -> bytes:
@@ -104,16 +116,18 @@ for msg in st.session_state.messages:
  
 # --- Input por voz ---
 st.write("🎤 Ou faz a pergunta por voz:")
+# just_once=False: o gravador mantém-se ativo para várias gravações seguidas.
+# Controlamos manualmente o que já foi processado através do 'id' (contador).
 audio = mic_recorder(start_prompt="Gravar", stop_prompt="Parar",
-                     just_once=True, use_container_width=True, key="recorder")
+                     just_once=False, use_container_width=True, key="recorder")
  
 user_input = None
  
-# Se houve gravação nova, transcreve
+# Só transcreve se for uma gravação NOVA (id diferente do último processado)
 if audio and audio.get("id") != st.session_state.last_audio_id:
     st.session_state.last_audio_id = audio["id"]
     with st.spinner("A transcrever a tua pergunta..."):
-        user_input = transcribe_audio_bytes(audio["bytes"])
+        user_input = transcribe_audio_openai(audio["bytes"])
  
 # Input por texto
 typed = st.chat_input("Escreve a tua pergunta sobre finanças...")
