@@ -1,0 +1,179 @@
+{
+  "video_id": "Z2r_apNMTeM",
+  "title": "Taxes 101 (Tax Basics 1/3)",
+  "channel": "MoneyCoach",
+  "url": "https://www.youtube.com/watch?v=Z2r_apNMTeM",
+  "source": "whisper",
+  "language": "en",
+  "text": "Meet Ray. Ray is an incoming senior at State University who just finished up a summer internship  at Corporate Co. Ray had a great experience and also made a lot of money. This is great  news, but there is one problem. Ray has no idea how to pay his taxes, or even if the  money he made requires him to do so. What should Ray do? Well, we've got him covered.  Let's start with the basics. How does the US tax system actually work? Paying your taxes  is a lot like filling up a line of progressively larger buckets. Each bucket corresponds to  a specific tax rate, like 10%, and to a specific range of income, like 0 to 9225. As your income  grows, you fill up more and more of these buckets, called brackets, each one with its  own tax rate. In addition to this, you'll also need to pay what's called a FICA tax,  which is the flat 7.65% tax on any money you've earned. Sounds simple enough, right?  Well, unfortunately taxes in real life are a bit more complicated, so let's use a more  detailed example. Let's say Ray made $30,000 last year. That's his gross income,  literally the amount of money he made at Corporate Co. before taxes. This number can  then be refined into what's called AGI, by subtracting certain expenses called adjustments,  also known as above the line deductions. For example, if Ray paid $1,000 in combined  student loan interest, his AGI would move from $30,000 to $29,000. This number can  be then lowered even further if Ray takes an exemption. An exemption is a flat 4,000 reduction  in AGI, available to each taxpayer, for himself, his spouse, and each one of his dependents. For  example, if Ray takes his exemption, his AGI, currently at $29,000, will be lowered to $25,000.  Ray can then lower this number even further by taking a deduction. Unlike exemptions,  deductions depend on the expenses of each taxpayer. So what does that even mean? Well,  there are several types of expenses, like charitable donations or mortgage interest,  that can be used to lower AGI. These are called itemized or below the line deductions.  If Ray lacks these specific expenses, he can instead take a standard deduction,  which is a flat $6,300 reduction in AGI as of 2015. However, there's a catch. If you choose to take  the standard deduction, you can't also itemize your deductions, so be sure to pick whichever one  is greater. So, let's assume Ray takes the standard deduction. That means his AGI,  currently sitting at $25,000, will be lowered to $18,700. That number is Ray's taxable income,  literally the amount of money eligible to be taxed by the IRS. From there, if Ray plugs that  number into the 2015 tax brackets, he'll find he owes about $2,300 in federal income tax.  Considering that Ray started with $30,000 in gross income, this seems like a pretty good  deal. However, there's actually one more tool Ray can use to save money, tax credits.  Unlike exemptions and deductions, which lower AGI, tax credits directly lower your actual tax  payments. For example, let's say Ray is eligible for a $1,000 tax credit. This credit can then  be used to offset his $2,300 tax bill, leaving him owing about $1,300 in income tax, plus the money  for the FICA tax, which will have already been automatically taken out of his paycheck by his  employer. So that's the end of taxes, right? Well, not quite. Ray may also have to supplement  his federal taxes with state income taxes. Thankfully, however, these taxes are calculated  in a very similar manner to federal taxes and are almost always lower. Hopefully you and Ray  now better understand how taxes work. Be sure to check out our next video, where we'll teach  you whether or not you need to file a tax return, and be sure to check out our website,  where you can find more educational material and free recommendations for great tax filing software.",
+  "segments": [
+    {
+      "start": 0.0,
+      "text": "Meet Ray. Ray is an incoming senior at State University who just finished up a summer internship"
+    },
+    {
+      "start": 8.52,
+      "text": "at Corporate Co. Ray had a great experience and also made a lot of money. This is great"
+    },
+    {
+      "start": 14.08,
+      "text": "news, but there is one problem. Ray has no idea how to pay his taxes, or even if the"
+    },
+    {
+      "start": 19.48,
+      "text": "money he made requires him to do so. What should Ray do? Well, we've got him covered."
+    },
+    {
+      "start": 25.240000000000002,
+      "text": "Let's start with the basics. How does the US tax system actually work? Paying your taxes"
+    },
+    {
+      "start": 31.160000000000004,
+      "text": "is a lot like filling up a line of progressively larger buckets. Each bucket corresponds to"
+    },
+    {
+      "start": 36.36,
+      "text": "a specific tax rate, like 10%, and to a specific range of income, like 0 to 9225. As your income"
+    },
+    {
+      "start": 45.120000000000005,
+      "text": "grows, you fill up more and more of these buckets, called brackets, each one with its"
+    },
+    {
+      "start": 49.52,
+      "text": "own tax rate. In addition to this, you'll also need to pay what's called a FICA tax,"
+    },
+    {
+      "start": 54.24,
+      "text": "which is the flat 7.65% tax on any money you've earned. Sounds simple enough, right?"
+    },
+    {
+      "start": 60.28,
+      "text": "Well, unfortunately taxes in real life are a bit more complicated, so let's use a more"
+    },
+    {
+      "start": 65.28,
+      "text": "detailed example. Let's say Ray made $30,000 last year. That's his gross income,"
+    },
+    {
+      "start": 70.84,
+      "text": "literally the amount of money he made at Corporate Co. before taxes. This number can"
+    },
+    {
+      "start": 75.76,
+      "text": "then be refined into what's called AGI, by subtracting certain expenses called adjustments,"
+    },
+    {
+      "start": 80.84,
+      "text": "also known as above the line deductions. For example, if Ray paid $1,000 in combined"
+    },
+    {
+      "start": 86.84,
+      "text": "student loan interest, his AGI would move from $30,000 to $29,000. This number can"
+    },
+    {
+      "start": 93.84,
+      "text": "be then lowered even further if Ray takes an exemption. An exemption is a flat 4,000 reduction"
+    },
+    {
+      "start": 99.64,
+      "text": "in AGI, available to each taxpayer, for himself, his spouse, and each one of his dependents. For"
+    },
+    {
+      "start": 106.56,
+      "text": "example, if Ray takes his exemption, his AGI, currently at $29,000, will be lowered to $25,000."
+    },
+    {
+      "start": 113.68,
+      "text": "Ray can then lower this number even further by taking a deduction. Unlike exemptions,"
+    },
+    {
+      "start": 119.60000000000001,
+      "text": "deductions depend on the expenses of each taxpayer. So what does that even mean? Well,"
+    },
+    {
+      "start": 125.04,
+      "text": "there are several types of expenses, like charitable donations or mortgage interest,"
+    },
+    {
+      "start": 128.92000000000002,
+      "text": "that can be used to lower AGI. These are called itemized or below the line deductions."
+    },
+    {
+      "start": 134.16,
+      "text": "If Ray lacks these specific expenses, he can instead take a standard deduction,"
+    },
+    {
+      "start": 138.72,
+      "text": "which is a flat $6,300 reduction in AGI as of 2015. However, there's a catch. If you choose to take"
+    },
+    {
+      "start": 147.36,
+      "text": "the standard deduction, you can't also itemize your deductions, so be sure to pick whichever one"
+    },
+    {
+      "start": 152.24,
+      "text": "is greater. So, let's assume Ray takes the standard deduction. That means his AGI,"
+    },
+    {
+      "start": 158.20000000000002,
+      "text": "currently sitting at $25,000, will be lowered to $18,700. That number is Ray's taxable income,"
+    },
+    {
+      "start": 165.84,
+      "text": "literally the amount of money eligible to be taxed by the IRS. From there, if Ray plugs that"
+    },
+    {
+      "start": 171.60000000000002,
+      "text": "number into the 2015 tax brackets, he'll find he owes about $2,300 in federal income tax."
+    },
+    {
+      "start": 176.96,
+      "text": "Considering that Ray started with $30,000 in gross income, this seems like a pretty good"
+    },
+    {
+      "start": 182.20000000000002,
+      "text": "deal. However, there's actually one more tool Ray can use to save money, tax credits."
+    },
+    {
+      "start": 188.32,
+      "text": "Unlike exemptions and deductions, which lower AGI, tax credits directly lower your actual tax"
+    },
+    {
+      "start": 194.24,
+      "text": "payments. For example, let's say Ray is eligible for a $1,000 tax credit. This credit can then"
+    },
+    {
+      "start": 200.68,
+      "text": "be used to offset his $2,300 tax bill, leaving him owing about $1,300 in income tax, plus the money"
+    },
+    {
+      "start": 207.79999999999998,
+      "text": "for the FICA tax, which will have already been automatically taken out of his paycheck by his"
+    },
+    {
+      "start": 212.0,
+      "text": "employer. So that's the end of taxes, right? Well, not quite. Ray may also have to supplement"
+    },
+    {
+      "start": 218.6,
+      "text": "his federal taxes with state income taxes. Thankfully, however, these taxes are calculated"
+    },
+    {
+      "start": 223.92,
+      "text": "in a very similar manner to federal taxes and are almost always lower. Hopefully you and Ray"
+    },
+    {
+      "start": 229.64,
+      "text": "now better understand how taxes work. Be sure to check out our next video, where we'll teach"
+    },
+    {
+      "start": 234.04,
+      "text": "you whether or not you need to file a tax return, and be sure to check out our website,"
+    },
+    {
+      "start": 237.92000000000002,
+      "text": "where you can find more educational material and free recommendations for great tax filing software."
+    }
+  ]
+}

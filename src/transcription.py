@@ -14,7 +14,7 @@ import json
 import os
 import re
 import tempfile
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from pathlib import Path
  
 import yt_dlp
@@ -55,6 +55,9 @@ class VideoTranscript:
     source: str       # "captions" (legendas) ou "whisper"
     language: str
     text: str
+    # Segmentos com timestamps: [{"start": float (segundos), "text": str}, ...]
+    # Permite ligar cada pedaço da transcrição ao momento exato do vídeo.
+    segments: list = field(default_factory=list)
  
     def save(self) -> Path:
         """Guarda a transcrição em JSON na pasta data/transcripts/."""
@@ -102,7 +105,9 @@ def try_get_captions(video_id: str):
         transcript = transcript_list.find_transcript(PREFERRED_LANGUAGES)
         entries = transcript.fetch()
         text = " ".join(entry["text"] for entry in entries)
-        return text, transcript.language_code
+        # Segmentos com timestamps (as legendas já trazem o 'start')
+        segments = [{"start": float(e["start"]), "text": e["text"]} for e in entries]
+        return text, transcript.language_code, segments
     except (TranscriptsDisabled, NoTranscriptFound, VideoUnavailable):
         return None
     except Exception as e:
@@ -143,30 +148,39 @@ def transcribe_audio_bytes(audio_bytes: bytes, model_size: str = DEFAULT_MODEL) 
 def transcribe_with_whisper(url: str, video_id: str, model_size: str = DEFAULT_MODEL):
     """
     CAMADA 2: baixa o áudio e transcreve com Whisper.
-    Retorna (texto, idioma).
+    Retorna (texto, idioma, segmentos).
     """
-    # 1. Baixar o áudio
-    ydl_opts = {
-        "format": "bestaudio/best",
-        "outtmpl": str(AUDIO_DIR / "%(id)s.%(ext)s"),
-        "postprocessors": [{
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
-            "preferredquality": "192",
-        }],
-        "quiet": True,
-        "no_warnings": True,
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.extract_info(url, download=True)
- 
     audio_path = AUDIO_DIR / f"{video_id}.mp3"
  
-    # 2. Transcrever
+    # 1. Baixar o áudio — só se ainda não estiver em cache local
+    if audio_path.exists():
+        print(f"      (áudio já em cache, a reutilizar)")
+    else:
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "outtmpl": str(AUDIO_DIR / "%(id)s.%(ext)s"),
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }],
+            "quiet": True,
+            "no_warnings": True,
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.extract_info(url, download=True)
+ 
+    # 2. Transcrever — guardamos cada segmento com o seu timestamp de início
     model = get_whisper_model(model_size)
-    segments, info = model.transcribe(str(audio_path), beam_size=5)
-    text = " ".join(segment.text for segment in segments).strip()
-    return text, info.language
+    raw_segments, info = model.transcribe(str(audio_path), beam_size=5)
+ 
+    seg_list = []
+    parts = []
+    for seg in raw_segments:
+        seg_list.append({"start": float(seg.start), "text": seg.text.strip()})
+        parts.append(seg.text)
+    text = " ".join(parts).strip()
+    return text, info.language, seg_list
  
  
 def transcribe_video(
@@ -182,20 +196,20 @@ def transcribe_video(
     video_id = meta["video_id"]
     print(f"-> {meta['title']} ({video_id})")
  
-    text, language, source = None, None, None
+    text, language, source, segments = None, None, None, []
  
     # CAMADA 1: legendas existentes
     if prefer_captions:
         result = try_get_captions(video_id)
         if result:
-            text, language = result
+            text, language, segments = result
             source = "captions"
             print(f"   [legendas] obtidas em '{language}' ({len(text)} chars)")
  
     # CAMADA 2: Whisper (fallback)
     if text is None:
         print(f"   [whisper] sem legendas, a transcrever com Whisper...")
-        text, language = transcribe_with_whisper(url, video_id, model_size)
+        text, language, segments = transcribe_with_whisper(url, video_id, model_size)
         source = "whisper"
         print(f"   [whisper] transcrito em '{language}' ({len(text)} chars)")
  
@@ -207,6 +221,7 @@ def transcribe_video(
         source=source,
         language=language,
         text=text,
+        segments=segments,
     )
     path = transcript.save()
     print(f"   guardado em {path}")

@@ -1,3 +1,4 @@
+
 """
 Interface web (Streamlit) do Finance AI Bot.
  
@@ -63,15 +64,43 @@ def text_to_speech(text: str) -> bytes:
         return response.read()
  
  
-def get_related_sources(question: str, k: int = 3):
-    """Vídeos mais relevantes para a pergunta (para mostrar como fontes)."""
-    docs = get_vectorstore().similarity_search(question, k=k)
+def format_timestamp(seconds: float) -> str:
+    """Converte segundos em mm:ss (ex: 225 -> '3:45')."""
+    seconds = int(seconds)
+    return f"{seconds // 60}:{seconds % 60:02d}"
+ 
+ 
+def timestamped_link(url: str, start: float) -> str:
+    """Cria um link do YouTube que abre no momento certo (ex: ...&t=225s)."""
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}t={int(start)}s"
+ 
+ 
+def get_related_sources(question: str, max_videos: int = 4):
+    """
+    Vídeos mais relevantes para a pergunta, com link para o momento certo.
+    Mostra cada vídeo SÓ UMA VEZ (no seu chunk mais relevante), para dar
+    variedade em vez de repetir o mesmo vídeo várias vezes.
+    """
+    # Buscamos mais candidatos (k alto) para conseguir vários vídeos distintos
+    docs = get_vectorstore().similarity_search(question, k=12)
     sources, seen = [], set()
     for doc in docs:
         vid = doc.metadata.get("video_id")
+        start = doc.metadata.get("start_time", 0.0)
+        # Cada vídeo aparece só uma vez (a 1ª ocorrência é a mais relevante)
         if vid not in seen:
             seen.add(vid)
-            sources.append((doc.metadata.get("title"), doc.metadata.get("url")))
+            sources.append({
+                "title": doc.metadata.get("title"),
+                "channel": doc.metadata.get("channel", ""),
+                "link": timestamped_link(doc.metadata.get("url", ""), start),
+                "time_label": format_timestamp(start),
+                # Miniatura do YouTube a partir do ID do vídeo
+                "thumbnail": f"https://img.youtube.com/vi/{vid}/mqdefault.jpg",
+            })
+        if len(sources) >= max_videos:
+            break
     return sources
  
  
@@ -82,21 +111,27 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 if "last_audio_id" not in st.session_state:
     st.session_state.last_audio_id = None
+if "pending_question" not in st.session_state:
+    st.session_state.pending_question = None
  
 agent = get_agent()
+ 
+# Avatares para as mensagens
+USER_AVATAR = "🧑"
+BOT_AVATAR = "💰"
  
  
 # --- Barra lateral ---
 with st.sidebar:
-    st.header("⚙️ Definições")
-    tts_enabled = st.toggle("🔊 Resposta por voz", value=False,
-                            help="Ouvir a resposta do bot em áudio (usa OpenAI TTS).")
+    st.header("⚙️ Settings")
+    tts_enabled = st.toggle("🔊 Spoken answer", value=False,
+                            help="Hear the bot's answer as audio (uses OpenAI TTS).")
     st.divider()
-    st.subheader("📺 Vídeos na base de conhecimento")
+    st.subheader("📺 Videos in the knowledge base")
     for title, channel, url in get_video_list():
         st.markdown(f"- [{title}]({url})  \n  _{channel}_")
     st.divider()
-    if st.button("🗑️ Limpar conversa"):
+    if st.button("🗑️ Clear conversation"):
         st.session_state.messages = []
         st.session_state.session_id = str(uuid.uuid4())  # nova sessão = nova memória
         st.rerun()
@@ -104,21 +139,43 @@ with st.sidebar:
  
 # --- Cabeçalho ---
 st.title("💰 Finance Video Q&A Bot")
-st.caption("Faz perguntas sobre finanças pessoais — por texto ou voz. "
-           "As respostas baseiam-se em vídeos do YouTube.")
+st.markdown(
+    "#### Your personal finance assistant, powered by YouTube videos 🎥"
+)
+st.caption("Ask by text or voice — answers come from real videos, "
+           "with a link to the exact moment.")
+st.divider()
+ 
+ 
+# --- Ecrã de boas-vindas com perguntas de exemplo (só quando o chat está vazio) ---
+EXAMPLE_QUESTIONS = [
+    "How do I start investing as a beginner?",
+    "What's the best way to build an emergency fund?",
+    "Should I rent or buy a home?",
+    "How do dividend stocks work?",
+]
+ 
+if not st.session_state.messages and not st.session_state.pending_question:
+    st.markdown("##### 👋 Not sure where to start? Try one of these:")
+    cols = st.columns(2)
+    for i, ex in enumerate(EXAMPLE_QUESTIONS):
+        if cols[i % 2].button(ex, key=f"ex_{i}", use_container_width=True):
+            st.session_state.pending_question = ex
+            st.rerun()
  
  
 # --- Histórico de mensagens ---
 for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
+    avatar = USER_AVATAR if msg["role"] == "user" else BOT_AVATAR
+    with st.chat_message(msg["role"], avatar=avatar):
         st.markdown(msg["content"])
  
  
 # --- Input por voz ---
-st.write("🎤 Ou faz a pergunta por voz:")
+st.write("🎤 Or ask by voice:")
 # just_once=False: o gravador mantém-se ativo para várias gravações seguidas.
 # Controlamos manualmente o que já foi processado através do 'id' (contador).
-audio = mic_recorder(start_prompt="Gravar", stop_prompt="Parar",
+audio = mic_recorder(start_prompt="Record", stop_prompt="Stop",
                      just_once=False, use_container_width=True, key="recorder")
  
 user_input = None
@@ -126,13 +183,18 @@ user_input = None
 # Só transcreve se for uma gravação NOVA (id diferente do último processado)
 if audio and audio.get("id") != st.session_state.last_audio_id:
     st.session_state.last_audio_id = audio["id"]
-    with st.spinner("A transcrever a tua pergunta..."):
+    with st.spinner("Transcribing your question..."):
         user_input = transcribe_audio_openai(audio["bytes"])
  
 # Input por texto
-typed = st.chat_input("Escreve a tua pergunta sobre finanças...")
+typed = st.chat_input("Type your personal finance question...")
 if typed:
     user_input = typed
+ 
+# Pergunta vinda de um botão de exemplo
+if st.session_state.pending_question:
+    user_input = st.session_state.pending_question
+    st.session_state.pending_question = None
  
  
 def search_query_used(result) -> str | None:
@@ -151,13 +213,13 @@ def search_query_used(result) -> str | None:
 if user_input:
     # Mostrar mensagem do utilizador
     st.session_state.messages.append({"role": "user", "content": user_input})
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(user_input)
  
     # Resposta do agente
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=BOT_AVATAR):
         try:
-            with st.spinner("A pensar..."):
+            with st.spinner("Thinking..."):
                 result = agent.invoke(
                     {"input": user_input},
                     config={"configurable": {"session_id": st.session_state.session_id}},
@@ -171,21 +233,29 @@ if user_input:
             if query:
                 sources = get_related_sources(query)
                 if sources:
-                    with st.expander("📺 Vídeos relacionados"):
-                        for title, url in sources:
-                            st.markdown(f"- [{title}]({url})")
+                    st.markdown("**📺 Related videos (jump to the exact moment)**")
+                    for s in sources:
+                        col_img, col_txt = st.columns([1, 3])
+                        with col_img:
+                            st.image(s["thumbnail"], width=140)
+                        with col_txt:
+                            st.markdown(f"**{s['title']}**")
+                            if s["channel"]:
+                                st.caption(s["channel"])
+                            st.markdown(f"[▶️ Watch at {s['time_label']}]({s['link']})")
+                        st.divider()
  
             # Resposta por voz (opcional) — falha em silêncio se a TTS der erro
             if tts_enabled:
                 try:
-                    with st.spinner("A gerar áudio..."):
+                    with st.spinner("Generating audio..."):
                         audio_bytes = text_to_speech(answer)
                     st.audio(audio_bytes, format="audio/mp3", autoplay=True)
                 except Exception:
-                    st.warning("Não foi possível gerar o áudio desta vez.")
+                    st.warning("Couldn't generate audio this time.")
  
             st.session_state.messages.append({"role": "assistant", "content": answer})
  
         except Exception:
-            st.error("⚠️ Ocorreu um erro ao processar a tua pergunta. "
-                     "Verifica a ligação e a chave da OpenAI, e tenta novamente.")
+            st.error("⚠️ Something went wrong while processing your question. "
+                     "Please check your connection and OpenAI key, then try again.")

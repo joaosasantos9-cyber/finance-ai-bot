@@ -9,5 +9,9 @@
 fileWatcherType = "none"
  
 [theme]
-# Tema visual (opcional, deixa a app mais bonita para a apresentação)
-primaryColor = "#2E8B57"
+# Tema visual — verde "finanças", limpo e profissional
+primaryColor = "#2E8B57"            # verde (botões, links, destaques)
+backgroundColor = "#FFFFFF"          # fundo principal
+secondaryBackgroundColor = "#F0F4F1" # fundo da barra lateral e cartões
+textColor = "#1A1A1A"
+font = "sans serif"

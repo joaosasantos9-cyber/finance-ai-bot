@@ -61,19 +61,63 @@ def load_documents() -> list[Document]:
     return docs
  
  
-def split_documents(docs: list[Document]) -> list[Document]:
+def chunk_transcript(data: dict) -> list[Document]:
     """
-    Divide cada Document em chunks mais pequenos.
-    RecursiveCharacterTextSplitter tenta cortar em fronteiras naturais
-    (parágrafos, frases) antes de cortar a meio de uma palavra.
-    Os metadados (título, url...) são copiados para cada chunk.
+    Divide UMA transcrição em chunks, AGRUPANDO os segmentos do Whisper.
+    Cada chunk guarda o 'start_time' do seu primeiro segmento, para podermos
+    criar um link direto para esse momento do vídeo.
+    Mantém uma sobreposição (overlap) entre chunks para não cortar ideias.
     """
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE,
-        chunk_overlap=CHUNK_OVERLAP,
-        separators=["\n\n", "\n", ". ", " ", ""],
-    )
-    return splitter.split_documents(docs)
+    base_meta = {
+        "video_id": data["video_id"],
+        "title": data["title"],
+        "channel": data["channel"],
+        "url": data["url"],
+        "source": data["source"],
+    }
+    segments = data.get("segments", [])
+ 
+    # Fallback: se (por algum motivo) não houver segmentos, usa o texto todo
+    if not segments:
+        return [Document(page_content=data["text"], metadata={**base_meta, "start_time": 0.0})]
+ 
+    chunks = []
+    buffer = []        # segmentos acumulados para o chunk atual
+    buffer_len = 0
+ 
+    def flush(buf):
+        text = " ".join(s["text"] for s in buf).strip()
+        if text:
+            chunks.append(Document(
+                page_content=text,
+                metadata={**base_meta, "start_time": float(buf[0]["start"])},
+            ))
+ 
+    for seg in segments:
+        buffer.append(seg)
+        buffer_len += len(seg["text"]) + 1
+        if buffer_len >= CHUNK_SIZE:
+            flush(buffer)
+            # Overlap: manter os últimos segmentos (~CHUNK_OVERLAP chars) no próximo chunk
+            tail, tail_len = [], 0
+            for s in reversed(buffer):
+                tail.insert(0, s)
+                tail_len += len(s["text"]) + 1
+                if tail_len >= CHUNK_OVERLAP:
+                    break
+            buffer, buffer_len = tail, tail_len
+ 
+    flush(buffer)  # último chunk
+    return chunks
+ 
+ 
+def build_all_chunks() -> list[Document]:
+    """Lê todas as transcrições e gera todos os chunks (com timestamps)."""
+    all_chunks = []
+    for path in sorted(TRANSCRIPT_DIR.glob("*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        all_chunks.extend(chunk_transcript(data))
+    return all_chunks
  
  
 def get_embeddings() -> OpenAIEmbeddings:
@@ -90,7 +134,7 @@ def build_vectorstore():
     if not docs:
         raise RuntimeError("Sem transcrições em data/transcripts/. Corre o ingest.py primeiro.")
  
-    chunks = split_documents(docs)
+    chunks = build_all_chunks()
  
     vectorstore = Chroma.from_documents(
         documents=chunks,
