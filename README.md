@@ -17,47 +17,9 @@ Supports voice input (speech-to-text) and voice output (text-to-speech).
 Is evaluated with LangSmith and deployed as a public web app.
 
 
-Architecture
-                        OFFLINE (one-time ingestion)
-   YouTube ──► yt-dlp ──► faster-whisper ──► chunks + embeddings ──► ChromaDB
-   (audio)                (transcription)     (timestamped)          (vector DB)
-
-                        ONLINE (live app)
-   User question (text or voice)
-        │  (voice → OpenAI Whisper API)
-        ▼
-   LangChain Agent (GPT-4o-mini) ──► tool: search_finance_videos ──► ChromaDB
-        │                            tool: list_available_videos
-        ▼
-   Grounded answer + sources (video + timestamp)  ──►  optional TTS (OpenAI)
-Design principle: heavy models (Whisper) run offline for batch transcription;
-the live app uses lightweight OpenAI APIs, so the deployed server stays small.
-
-Tech stack
-AreaTechnologyAudio downloadyt-dlpTranscription (STT)faster-whisper (small.en), captions fallback via youtube-transcript-apiFrameworkLangChain (agent, tools, memory, LCEL)EmbeddingsOpenAI text-embedding-3-smallVector databaseChromaDBLLMOpenAI gpt-4o-miniVoice (app)OpenAI Whisper API (whisper-1) + OpenAI TTS (tts-1)InterfaceStreamlitEvaluation / tracingLangSmith (LLM-as-a-judge)DeploymentStreamlit Community Cloud
-
-Project structure
-finance-ai-bot/
-├── data/
-│   ├── audio/              # downloaded audio (gitignored)
-│   └── transcripts/        # transcripts as JSON (with timestamps)
-├── chroma_db/              # persisted vector database
-├── src/
-│   ├── transcription.py    # yt-dlp + Whisper + captions fallback
-│   ├── rag.py              # chunking, embeddings, ChromaDB
-│   ├── qa.py               # RAG QA chain (LCEL)
-│   └── agent.py            # LangChain agent (tools + memory)
-├── ingest.py               # transcribe a list of videos (videos.txt)
-├── build_index.py          # build the vector database
-├── evaluate_bot.py         # LangSmith evaluation
-├── app.py                  # Streamlit web app
-├── videos.txt              # list of YouTube URLs
-├── requirements.txt        # app dependencies (used for deploy)
-├── requirements-ingest.txt # extra deps for local transcription
-└── .streamlit/config.toml  # theme + server config
-
 Setup
-bash# 1. Virtual environment (Python 3.11 recommended)
+bash
+# 1. Virtual environment (Python 3.11 recommended)
 python3 -m venv venv
 source venv/bin/activate            # macOS/Linux
 
@@ -77,7 +39,8 @@ LANGCHAIN_PROJECT=finance-ai-bot
 LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
 
 Usage
-bash# 1. Transcribe the videos listed in videos.txt
+bash
+# 1. Transcribe the videos listed in videos.txt
 python3 ingest.py
 
 # 2. Build the vector database
