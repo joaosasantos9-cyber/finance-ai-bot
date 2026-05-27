@@ -32,9 +32,9 @@ brew install ffmpeg                 # macOS
 # 4. Environment variables
 cp .env.example .env                # then add your keys
 .env keys:
-OPENAI_API_KEY=sk-...
+OPENAI_API_KEY
 LANGCHAIN_TRACING_V2=true
-LANGCHAIN_API_KEY=lsv2-...
+LANGCHAIN_API_KEY
 LANGCHAIN_PROJECT=finance-ai-bot
 LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
 
